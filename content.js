@@ -14,11 +14,11 @@ chrome.runtime.onMessage.addListener(
 );
 //"default_popup": "popup.html",
 
-window.addEventListener("message", (event) => {
+/* window.addEventListener("message", (event) => {
 	if (event.origin !== "https://mail.google.com")
     return;
 	console.log("got a msg from window thing"+ event.msg);
-}, false);
+}, false); */
 
 chrome.runtime.sendMessage({ msg: "content talking to background"/*, data: textFieldContent*/ }, (response) => {
     // If this message's recipient sends a response it will be handled here 
