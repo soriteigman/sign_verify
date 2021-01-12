@@ -1,5 +1,5 @@
 //content.js
-alert("I'm alive!");
+//alert("I'm alive!");
 console.log("hello HELLLO");
 
 chrome.runtime.onMessage.addListener(
@@ -15,16 +15,21 @@ chrome.runtime.onMessage.addListener(
 //"default_popup": "popup.html",
 
 /* window.addEventListener("message", (event) => {
-	if (event.origin !== "https://mail.google.com")
-    return;
-	console.log("got a msg from window thing"+ event.msg);
+	//if (event.origin !== "https://mail.google.com")
+    //return;
+	console.log("got a msg from window thing"+ event.message+" event.origin: "+event.origin);
 }, false); */
+
+window.addEventListener("MyCustomMsg", function(data) {
+	console.log(event.data);
+  console.log("msg from injected "+data);
+}, false);
 
 chrome.runtime.sendMessage({ msg: "content talking to background"/*, data: textFieldContent*/ }, (response) => {
     // If this message's recipient sends a response it will be handled here 
     if (response) {
       // do cool things with the response
-      alert("received response from background");
+      console.log("received response from background");
     }
 });
 

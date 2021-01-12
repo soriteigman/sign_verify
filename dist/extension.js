@@ -14,6 +14,7 @@ const loaderId = setInterval(() => {
 // actual extension-code
 function startExtension(gmail) {
     console.log("Extension loading...");
+
     window.gmail = gmail;
 
     gmail.observe.on("compose", function(compose, type){
@@ -29,6 +30,10 @@ function startExtension(gmail) {
 				
 		});
     });
+	//targetWindow.postMessage("extension sending msg", "*");
+	window.dispatchEvent(new CustomEvent("MyCustomMsg", {data: 'extension sending msg'}));
+	console.log("got up to here");
+
 }
 
 },{}]},{},[1]);
