@@ -30,7 +30,9 @@ namespace FinalProjHost
             //The UUID is the same value as the applet.id field in the Intel(R) DAL Trusted Application manifest.
             string appletID = "69d60184-b11c-43d1-a8ed-527f045cac14";
             // This is the path to the Intel Intel(R) DAL Trusted Application .dalp file that was created by the Intel(R) DAL Eclipse plug-in.
-            string appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj.dalp";
+
+            string appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj.dalp";//for regular program
+            //appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj-debug.dalp"; //for debugger
 
             // Install the Trusted Application
             Console.WriteLine("Installing the applet.");
@@ -72,7 +74,7 @@ namespace FinalProjHost
 
             //generate key
             Console.Out.WriteLine("Generating key...");
-            recvBuff = sendRecv(null, 6);
+            recvBuff = sendRecv(null, 1);
             String status = Encoding.UTF8.GetString(recvBuff);
             if (status == "DUPLICATE")
             {
@@ -84,7 +86,7 @@ namespace FinalProjHost
             }
             //public key get
             Console.Out.WriteLine("Retrieving key...");
-            byte[] pubKey = sendRecv(null, 7);
+            byte[] pubKey = sendRecv(null, 2);
             if (Encoding.UTF8.GetString(pubKey) != "FAIL")
                 Console.Out.WriteLine("Public key retrieved.");
             else
@@ -107,7 +109,7 @@ namespace FinalProjHost
             //sign
             Console.Out.WriteLine("Signing data...");
             byte[] message = nonce;
-            recvBuff = sendRecv(message, 8);
+            recvBuff = sendRecv(message, 3);
             status = Encoding.UTF8.GetString(recvBuff);
             if (status == "FAIL")
             {

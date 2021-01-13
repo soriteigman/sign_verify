@@ -251,9 +251,6 @@ public class SignKeys extends IntelApplet {
 		}
 		return null;
 	}
-
-
-
 	
 	/**
 	 * This method will be called by the VM when the session being handled by
