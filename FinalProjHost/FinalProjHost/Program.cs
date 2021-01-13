@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Intel.Dal;
+using System.Security.Cryptography;
 
 namespace FinalProjHost
 {
@@ -40,15 +41,102 @@ namespace FinalProjHost
             Console.WriteLine("Opening a session.");
             jhi.CreateSession(appletID, JHI_SESSION_FLAGS.None, initBuffer, out session);
 
-            // Send and Receive data to/from the Trusted Application
-            byte[] sendBuff = UTF32Encoding.UTF8.GetBytes("Hello"); // A message to send to the TA
-            byte[] recvBuff = new byte[2000]; // A buffer to hold the output data from the TA
-            int responseCode; // The return value that the TA provides using the IntelApplet.setResponseCode method
-            int cmdId = 1; // The ID of the command to be performed by the TA
-            Console.WriteLine("Performing send and receive operation.");
-            jhi.SendAndRecv2(session, cmdId, sendBuff, ref recvBuff, out responseCode);
-            Console.Out.WriteLine("Response buffer is " + UTF32Encoding.UTF8.GetString(recvBuff));
+            /**
+            * function performs send and receive. 
+            * returns status of action
+            */
+            Func<byte[], int, byte[]> sendRecv = (sendBuff, cmdId) =>
+            {
+                byte[] recvBuff1 = new byte[2000]; // A buffer to hold the output data from the TA
+                int responseCode; // The return value that the TA provides using the IntelApplet.setResponseCode method
+                jhi.SendAndRecv2(session, cmdId, sendBuff, ref recvBuff1, out responseCode);
+                return recvBuff1;
+            };
 
+            /*
+             * converts string message to byte
+             */
+            Func<String, byte[]> convertMessage = (mess) =>
+            {
+                byte[] sendBuff = null;
+                if (mess != null)
+                {
+                    sendBuff = UTF32Encoding.UTF8.GetBytes(mess);
+                }
+                return sendBuff;
+            };
+
+            // Send and Receive data to/from the Trusted Application
+
+            byte[] recvBuff;
+
+            //generate key
+            Console.Out.WriteLine("Generating key...");
+            recvBuff = sendRecv(null, 6);
+            String status = Encoding.UTF8.GetString(recvBuff);
+            if (status == "DUPLICATE")
+            {
+                Console.WriteLine(status + ": key already set. Using saved key...");
+            }
+            else
+            {
+                Console.Out.WriteLine("Status: " + status);
+            }
+            //public key get
+            Console.Out.WriteLine("Retrieving key...");
+            byte[] pubKey = sendRecv(null, 7);
+            if (Encoding.UTF8.GetString(pubKey) != "FAIL")
+                Console.Out.WriteLine("Public key retrieved.");
+            else
+            {
+                Console.Out.WriteLine("Can't access public key. Closing app.");
+                goto close;
+            }
+
+            //creating nonce
+            Console.Out.WriteLine("Creating nonce...");
+            //Allocate a buffer
+            var nonce = new byte[20];
+            //Generate a cryptographically random set of bytes
+            using (var Rnd = RandomNumberGenerator.Create())
+            {
+                Rnd.GetBytes(nonce);
+            }
+
+
+            //sign
+            Console.Out.WriteLine("Signing data...");
+            byte[] message = nonce;
+            recvBuff = sendRecv(message, 8);
+            status = Encoding.UTF8.GetString(recvBuff);
+            if (status == "FAIL")
+            {
+                Console.Out.WriteLine("Unable to continue.\nClosing app...");
+                goto close;
+            }
+            Console.Out.WriteLine("Data signed.");
+
+
+            //verify
+            Console.Out.WriteLine("Verifying signature...");
+            RSAParameters rsa = new RSAParameters();
+            byte[] e = new byte[4];
+            byte[] mod = new byte[256];
+            Array.Copy(pubKey, 256, e, 0, 4);
+            Array.Copy(pubKey, 0, mod, 0, 256);
+            //extract mod and e from public key
+            rsa.Exponent = e;
+            rsa.Modulus = mod;
+            RSACryptoServiceProvider r = new RSACryptoServiceProvider();
+            r.ImportParameters(rsa);
+            bool t = r.VerifyData(message, "Sha256", recvBuff);
+
+            if (t)
+                Console.Out.WriteLine("Signature was verified.");
+            else
+                Console.Out.WriteLine("Signature could not be verified.");
+
+            close:
             // Close the session
             Console.WriteLine("Closing the session.");
             jhi.CloseSession(session);
