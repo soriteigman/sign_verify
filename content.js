@@ -20,17 +20,25 @@ chrome.runtime.onMessage.addListener(
 	console.log("got a msg from window thing"+ event.message+" event.origin: "+event.origin);
 }, false); */
 
-window.addEventListener("MyCustomMsg", function(data) {
-	console.log(event.data);
-  console.log("msg from injected "+data);
-}, false);
-
-chrome.runtime.sendMessage({ msg: "content talking to background"/*, data: textFieldContent*/ }, (response) => {
+window.addEventListener("MyCustomMsg", function(e) {
+  console.log("msg from injected e "+e.detail.emailBody+e.detail.client);
+  
+  chrome.runtime.sendMessage({ msg: "sign email", data: {userEmail: e.detail.client, emailBod: e.detail.emailBody}}, (response) => {
     // If this message's recipient sends a response it will be handled here 
     if (response) {
       // do cool things with the response
       console.log("received response from background");
     }
 });
+  
+}, false);
+
+/* chrome.runtime.sendMessage({ msg: "content talking to background", data: textFieldContent }, (response) => {
+    // If this message's recipient sends a response it will be handled here 
+    if (response) {
+      // do cool things with the response
+      console.log("received response from background");
+    }
+}); */
 
 //,"content.js"  -from manifest

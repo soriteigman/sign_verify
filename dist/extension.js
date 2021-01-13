@@ -25,13 +25,15 @@ function startExtension(gmail) {
 				var emailBod = compose.body();
 				const userEmail = gmail.get.user_email();
                 compose.bcc(userEmail);
+				
+				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
 
 				console.log("the body being signed:" + emailBod);
 				
 		});
     });
 	//targetWindow.postMessage("extension sending msg", "*");
-	window.dispatchEvent(new CustomEvent("MyCustomMsg", {data: 'extension sending msg'}));
+	//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: 'extension sending msg'}));
 	console.log("got up to here");
 
 }

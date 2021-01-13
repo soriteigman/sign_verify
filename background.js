@@ -14,10 +14,13 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
 		alert("BAckground got a request!");
-        if (request.msg == "sign") {
+        if (request.msg == "sign email") {
             // do cool things with the request then send response
-            //alert("msg received from content to background" + 
 			//" body: " + request.emailBod);
+			alert(" regular: " +request.data);
+			alert(" client: " +request.data.userEmail);
+			alert(" body: " +request.data.emailBod);
+
 		}
 		
         if (request.msg == "content talking to background") {
