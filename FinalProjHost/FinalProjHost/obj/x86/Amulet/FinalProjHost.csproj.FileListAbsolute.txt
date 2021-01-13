@@ -1,0 +1,6 @@
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\bin\Amulet\FinalProjHost.exe
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\bin\Amulet\FinalProjHost.pdb
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\bin\Amulet\JhiSharp.dll
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\obj\x86\Amulet\FinalProjHost.csprojResolveAssemblyReference.cache
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\obj\x86\Amulet\FinalProjHost.exe
+C:\DALapps\sign_verify\FinalProjHost\FinalProjHost\obj\x86\Amulet\FinalProjHost.pdb
