@@ -5,8 +5,11 @@ using System.Security.Cryptography;
 
 namespace FinalProjHost
 {
+    
     class Program
     {
+        static int INT_LEN_ARRAY = 4; //amount of bytes for each length field in email
+
         static void Main(string[] args)
         {
 
@@ -25,15 +28,19 @@ namespace FinalProjHost
 
             String username = "Avi@gmail.com";
 
+            //returns byte array of all information necessary to verify the email.
             byte[] email = signFunc(username, emailBody);
+
             /*}
            else { */
-           //verifies byte at end of email given
-           //TODO how does it get the email? first part is string and second part is byte. how does it distinguish between them? what format is it in?
-            //verifyFunc();
+            //save public key in file with email. 
+            //verifies that this is the same as the other ones if already has this email on file
 
-          // }
-          
+
+            //verifies bytes at end of email given
+            Console.WriteLine("verified: " + verifyFunc(email));
+            // }
+
             Console.WriteLine("Press Enter to finish.");
             Console.Read();
         }
@@ -68,7 +75,7 @@ namespace FinalProjHost
             // This is the path to the Intel Intel(R) DAL Trusted Application .dalp file that was created by the Intel(R) DAL Eclipse plug-in.
 
             string appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj.dalp";//for regular program
-            appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj-debug.dalp"; //for debugger
+            //appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj-debug.dalp"; //for debugger
 
             // Install the Trusted Application
             Console.WriteLine("Installing the applet.");
@@ -95,7 +102,7 @@ namespace FinalProjHost
             
             byte[] recvBuff;
             String status;
-            bool success = true; //indicates unexpected error
+            bool success = true; //indicates unexpected error if false
             byte[] returnEmail = null; //format return email
 
             //send request for public key in cmd id and username
@@ -106,7 +113,16 @@ namespace FinalProjHost
             //from key instance stored in DAL safe memory
             byte[] pubKey = sendRecv(convertMessage(username), 1);
             if (Encoding.UTF8.GetString(pubKey) != "FAIL")
+            {
                 Console.Out.WriteLine("Public key retrieved.");
+                if (!verifySameKey(username, pubKey))
+                {
+                    Console.WriteLine("invalid public key!");
+                    success = false;
+                }
+                    
+            }
+
             else
             {
                 Console.Out.WriteLine("Can't access public key. Closing app.");
@@ -128,11 +144,11 @@ namespace FinalProjHost
                 if (success)
                 {
                     Console.Out.WriteLine("Data signed.");
+
                     Console.WriteLine("Formatting return email");
-                    returnEmail = createEmail(pubKey, emailBody);
+                    returnEmail = createEmail(pubKey, recvBuff, emailBody);
                 }
                 
-
             }
             //log out
             Console.Out.WriteLine("Logging out...");
@@ -152,16 +168,41 @@ namespace FinalProjHost
         }
 
         /*
-         * formats pubkey and emailbody in an email. first four bytes are length of emailbody
+         * receives public key and username
+         * saves to database if nonexistant
+         * if exists checks that public key matches pubic key saved
          */
-        private static byte[] createEmail(byte[] pubKey, byte[] emailBody)
+        private static bool verifySameKey(string username, byte[] pubKey)
         {
-            int num = emailBody.Length;
-            byte[] byteNum = BitConverter.GetBytes(num);
-            byte[] finalEmail = new byte[4 + emailBody.Length + pubKey.Length];
-            Array.Copy(byteNum, finalEmail, 4); //copies length
-            Array.Copy(emailBody, 0, finalEmail, 4, emailBody.Length); //copies signed email
-            Array.Copy(pubKey, 0, finalEmail, 4 + emailBody.Length, pubKey.Length); //copies public key
+
+            return true;
+        }
+
+        /*
+         * formats pubkey and emailbody in an email. first four bytes are length of emailbody, second four are length of signature
+         */
+        private static byte[] createEmail(byte[] pubKey, byte[] signedEmail, byte[] emailBody)
+        {
+            //format : int int body signature key
+            int emailLen= emailBody.Length;
+            int signLen = signedEmail.Length;
+            //lengths in bits
+            byte[] emailLenB = BitConverter.GetBytes(emailLen), signLenB = BitConverter.GetBytes(signLen);
+
+            //total email size
+            byte[] finalEmail = new byte[2* INT_LEN_ARRAY + signedEmail.Length + emailBody.Length + pubKey.Length];
+
+            if (emailLenB.Length != INT_LEN_ARRAY )
+            {
+                Console.WriteLine("error in conversion of int to bytes");
+            }
+           
+            Array.Copy(emailLenB, finalEmail, INT_LEN_ARRAY); //copies length of email
+            Array.Copy(signLenB, 0, finalEmail, INT_LEN_ARRAY, INT_LEN_ARRAY); //copies length of signature
+            Array.Copy(emailBody, 0, finalEmail, 2* INT_LEN_ARRAY, emailBody.Length); //copies  email
+            Array.Copy(signedEmail, 0, finalEmail, 2 * INT_LEN_ARRAY + emailBody.Length, signedEmail.Length); //copies signed email
+            Array.Copy(pubKey, 0, finalEmail, 2 * INT_LEN_ARRAY + emailBody.Length + signedEmail.Length, pubKey.Length); //copies public key
+
             return finalEmail;
         }
 
@@ -173,16 +214,32 @@ namespace FinalProjHost
         public static bool verifyFunc(byte[] wholeEmail)
             
         {
-            return false;
+            //extract lengths of fields
+            byte[] emailLen = new byte[INT_LEN_ARRAY], 
+                signLen = new byte[INT_LEN_ARRAY];
+
+            Array.Copy(wholeEmail, emailLen, INT_LEN_ARRAY);
+            Array.Copy(wholeEmail, INT_LEN_ARRAY, signLen, 0, INT_LEN_ARRAY);
+            int sign = BitConverter.ToInt32(signLen, 0);
+            int mail = BitConverter.ToInt32(emailLen, 0);
+            int keyLen = 260; //based on algorithm being used
+            //lengths
+            byte[] email = new byte[mail], 
+                signature = new byte[sign], 
+                pubKey = new byte[keyLen];
+
+            //extracts parts
+            Array.Copy(wholeEmail, 2*INT_LEN_ARRAY, email, 0, mail);
+            Array.Copy(wholeEmail, 2* INT_LEN_ARRAY + mail, signature, 0, sign);
+            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail + sign, pubKey, 0, keyLen);
+
+            return verifyFunc(pubKey, email, signature);
         }
         /* 
          * verifies email received based on public key
          */
-        private static bool verifyFunc(String publicKey, String originalEmail, String signedEmail)
+        private static bool verifyFunc(byte[] pubKey, byte[] originalEmail, byte[] signedEmail)
         {
-            
-            byte[] pubKey = convertMessage(publicKey);
-
             //verify
             Console.Out.WriteLine("Verifying signature...");
             RSAParameters rsa = new RSAParameters();
@@ -195,7 +252,7 @@ namespace FinalProjHost
             rsa.Modulus = mod;
             RSACryptoServiceProvider r = new RSACryptoServiceProvider();
             r.ImportParameters(rsa);
-            bool t = r.VerifyData(convertMessage(originalEmail), "Sha256", convertMessage(signedEmail));
+            bool t = r.VerifyData(originalEmail, "Sha256", signedEmail);
 
             return t;
                 
