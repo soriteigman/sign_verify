@@ -2,6 +2,9 @@
 using System.Text;
 using Intel.Dal;
 using System.Security.Cryptography;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
 
 namespace FinalProjHost
 {
@@ -9,6 +12,75 @@ namespace FinalProjHost
     class Program
     {
         static int INT_LEN_ARRAY = 4; //amount of bytes for each length field in email
+        static int KEY_LEN = 260; //based on algorithm being used
+
+        /*
+         * based on code from docs.microsoft.com 
+         */
+        public static String getSeed(String user)
+        {
+            // Data buffer for incoming data.  
+            byte[] bytes = new byte[1024];
+
+            //seed from response
+            String message1 = null;
+
+            // Connect to a remote device.  
+            try
+            {
+                // Establish the remote endpoint for the socket.  
+                // This example uses port 6000 on the local computer.  
+                IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+
+                IPEndPoint remoteEP = new IPEndPoint(ipAddress, 6000);
+                // Create a TCP/IP  socket. 
+                Socket sender = new Socket(ipAddress.AddressFamily,
+                    SocketType.Stream, ProtocolType.Tcp);
+                // Connect the socket to the remote endpoint. Catch any errors.  
+                try
+                {
+                    sender.Connect(remoteEP);
+
+                    Console.WriteLine("Socket connected to {0}",
+                        sender.RemoteEndPoint.ToString());
+
+                    // Receive the request from the remote device.  
+                    int bytesRec = sender.Receive(bytes);
+                    message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
+                    Console.WriteLine(message1);
+
+                    // Encode the data string into a byte array.  
+                    byte[] msg = Encoding.ASCII.GetBytes(user);
+
+                    // Send the data through the socket.  
+                    int bytesSent = sender.Send(msg);
+
+                    // Release the socket.  
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+
+                }
+                catch (ArgumentNullException ane)
+                {
+                    Console.WriteLine("ArgumentNullException : {0}", ane.ToString());
+                }
+                catch (SocketException se)
+                {
+                    Console.WriteLine("SocketException : {0}", se.ToString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unexpected exception : {0}", e.ToString());
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            return message1;
+
+        }
 
         static void Main(string[] args)
         {
@@ -28,17 +100,16 @@ namespace FinalProjHost
 
             String username = "Avi@gmail.com";
 
-            //returns byte array of all information necessary to verify the email.
-            byte[] email = signFunc(username, emailBody);
+            getSeed(username);
 
+            //returns byte array of all information necessary to verify the email.
+            //byte[] email = signFunc(username, emailBody);
+
+            // if (email == null) { some error message returned}
             /*}
            else { */
-            //save public key in file with email. 
-            //verifies that this is the same as the other ones if already has this email on file
-
-
             //verifies bytes at end of email given
-            Console.WriteLine("verified: " + verifyFunc(email));
+            //Console.WriteLine("verified: " + verifyFunc(username, email));
             // }
 
             Console.WriteLine("Press Enter to finish.");
@@ -120,7 +191,6 @@ namespace FinalProjHost
                     Console.WriteLine("invalid public key!");
                     success = false;
                 }
-                    
             }
 
             else
@@ -172,10 +242,62 @@ namespace FinalProjHost
          * saves to database if nonexistant
          * if exists checks that public key matches pubic key saved
          */
-        private static bool verifySameKey(string username, byte[] pubKey)
+        private static bool verifySameKey(string orgUser, byte[] pubKey)
         {
-
             return true;
+            /*
+            string fileName = "passwords.txt";
+
+            //create line to add to file
+            byte[] username = UTF32Encoding.UTF8.GetBytes(orgUser);
+            //lengths in bits
+            int userLen = username.Length;
+            int lineLen = userLen + INT_LEN_ARRAY + pubKey.Length;
+            //final line to add
+            byte[] finalLine = new byte[INT_LEN_ARRAY + lineLen];
+            Array.Copy(BitConverter.GetBytes(lineLen), finalLine, INT_LEN_ARRAY);
+            Array.Copy(BitConverter.GetBytes(userLen), 0, finalLine, INT_LEN_ARRAY, INT_LEN_ARRAY);
+            Array.Copy(username, 0, finalLine, 2* INT_LEN_ARRAY, userLen);
+            Array.Copy(username, 0, finalLine, 2* INT_LEN_ARRAY + userLen, pubKey.Length);
+
+               if (File.Exists(fileName)){
+                //checks if duplicate value
+                byte[] lines = File.ReadAllBytes(fileName);
+
+                for (int i=0;i<lines.Length; i++)
+                {
+
+                    //read username length
+                    byte[] lenUser = new byte[INT_LEN_ARRAY];
+                    Array.Copy(lines[i], lenUser, INT_LEN_ARRAY);
+
+                    byte[] key = new byte[KEY_LEN]; // to save already saved key in
+                    int count = 0;
+                    for (int j = 0; j<lines[i].Length; j++)
+                    {
+                        if (count < 2 && lines[i][j] == '@')
+                        {
+                            count++;
+                        }
+                        if (count == 2)
+                        {
+                            Array.Copy()
+                        }
+                    }
+
+                }
+
+            }
+
+            using (FileStream textFile = File.Open(fileName, FileMode.Create))
+            {
+
+                textFile.read
+
+
+            }
+            */
+
         }
 
         /*
@@ -211,7 +333,7 @@ namespace FinalProjHost
          * verfies email sent. 
          * extracts public key, original email and signed email and sends to verify func as three arguments
           */
-        public static bool verifyFunc(byte[] wholeEmail)
+        public static bool verifyFunc(String username, byte[] wholeEmail)
             
         {
             //extract lengths of fields
@@ -222,18 +344,20 @@ namespace FinalProjHost
             Array.Copy(wholeEmail, INT_LEN_ARRAY, signLen, 0, INT_LEN_ARRAY);
             int sign = BitConverter.ToInt32(signLen, 0);
             int mail = BitConverter.ToInt32(emailLen, 0);
-            int keyLen = 260; //based on algorithm being used
             //lengths
             byte[] email = new byte[mail], 
                 signature = new byte[sign], 
-                pubKey = new byte[keyLen];
+                pubKey = new byte[KEY_LEN];
 
             //extracts parts
             Array.Copy(wholeEmail, 2*INT_LEN_ARRAY, email, 0, mail);
             Array.Copy(wholeEmail, 2* INT_LEN_ARRAY + mail, signature, 0, sign);
-            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail + sign, pubKey, 0, keyLen);
+            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail + sign, pubKey, 0, KEY_LEN);
 
-            return verifyFunc(pubKey, email, signature);
+            //save public key in file with email. 
+            //verifies that this is the same as the other ones if already has this email on file
+            return verifySameKey(username, pubKey) && verifyFunc(pubKey, email, signature);
+
         }
         /* 
          * verifies email received based on public key

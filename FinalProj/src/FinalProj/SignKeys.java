@@ -174,8 +174,7 @@ public class SignKeys extends IntelApplet {
 	 */
 	private byte[] signData(byte[] request) throws IllegalUseException{
 		set_if_exists();
-		if (RSA == null)
-		{
+		if (RSA == null){
 			throw new IllegalUseException("no key exists"); 
 		}
 		
@@ -186,12 +185,11 @@ public class SignKeys extends IntelApplet {
 		}
 		catch(NotInitializedException ne) {
 			DebugPrint.printString("not initialized exception" + ne.getMessage());
-			
-
 		}
 		catch(CryptoException ce) {
 			DebugPrint.printString("crypto exception" + ce.getMessage() + ce.getClass());
 		}
+	
 		return null;
 		
 	}
