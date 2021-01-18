@@ -28,7 +28,9 @@
 "permissions": [
 "activeTab",
 "https://*/*",
-"https://reqres.in/api/users?page=2"
+"https://reqres.in/api/users?page=2",
+"http://localhost/*",
+"https://localhost/*"
 ]
 }
 

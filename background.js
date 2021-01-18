@@ -15,11 +15,11 @@
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
-		alert("BAckground got a request!");
+		alert("Background got a request!");
         if (request.msg == "sign email") {
-			alert(" client: " +request.data.userEmail);
-			alert(" body: " +request.data.emailBod);
-
+			alert(" client: " +request.data.userEmail + " body: " +request.data.emailBod);
+			
+			
             //sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
 
 			 
@@ -42,3 +42,39 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		//alert(request.msg);
     }
 });
+/*$.ajax({
+  type: "POST",
+  url: "http://localhost:5525/hello",
+  data: { d: "hello everyone1" },
+  success: function(data){
+          alert("I got a response!!!!  " + this.responseText);
+
+  }
+});
+*/
+
+function callback() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+		alert("i'm done! the response is" + xhr.responseText)
+
+        if (xhr.status === 200) {
+            result = xhr.responseText;
+           alert("it worked!" +result)
+        }
+    }
+};
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "http://localhost:5525/hello", true);
+xhr.onreadystatechange = callback;
+xhr.send();
+
+/*var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    }
+  };
+  alert("sending http request")
+  xhttp.open("GET", "http://localhost:5525/hello", true);
+  xhttp.send();
+  alert("just respond!!!!!")
+  */
