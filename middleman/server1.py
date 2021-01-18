@@ -6,6 +6,8 @@ MAX_USER_ID = 256
 RAND_LEN = 6
 PORT = 5525
 MAX_REC = 128
+SOCKET_TIMEOUT = 10
+
 
 def application(environ, start_response):
   if environ['REQUEST_METHOD'] == 'OPTIONS':
@@ -29,13 +31,14 @@ print("Listening for connections on port {}".format(PORT))
 
 print("waiting for connections")
 client_socket, client_address = server_socket.accept()
+client_socket.settimeout(SOCKET_TIMEOUT)
 print("got a connection!")
 try:
     # receives client request
     recv = client_socket.recv(MAX_REC).decode()
     recvend=recv
     print (recv)
-    while recvend[-4:] != b'\r\n\r\n':  # empties socket of rest of header
+    while recvend[-4:] != b'\r\n\r\n':  # empties socket until end character received
         recvend = client_socket.recv(MAX_REC)
         print(recvend.decode())
 except Exception as e:
