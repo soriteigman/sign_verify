@@ -16,16 +16,49 @@ function startExtension(gmail) {
     console.log("Extension loading...");
 
     window.gmail = gmail;
+	
+	
+	gmail.observe.on("load_email_menu", function(id,body) {//id, url, body, xhr
+		
+		/* gmail.tools.add_toolbar_button("verify", () => { 
+			var emailBod = compose.body();
+			const userEmail = gmail.get.user_email();
+			console.log("verify button pressed");
+			//window.dispatchEvent(new CustomEvent("verifyRequest", {detail: {emailBody: emailBod, client: userEmail}}));
+
+		}); */
+		
+		gmail.tools.add_toolbar_button('verify', function() {
+			console.log("toolbar button 2.0");
+			//var emailBod = gmail.get.current_email().body;
+			console.log(gmail.get.current_page().body+"#2");
+			console.log(gmail.get.current_page()+"#3");
+			//console.log(gmail.get.email_data().email.body+"#4");
+			//console.log(gmail.dom.email_data(id)+"#5");
+			console.log(body);
+
+
+			const userEmail = gmail.get.user_email();
+			console.log("verify button pressed");
+			window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
+
+		});
+		
+		//console.log("id:", id, "url:", url, 'body', body, 'xhr', xhr);
+		//console.log(gmail.get.email_data(id));
+	})
+
 
     gmail.observe.on("compose", function(compose, type){
         const userEmail = gmail.get.user_email();
         console.log("Hello, " + userEmail + ". This is your extension talking!");
+		
+        //gmail.tools.add_toolbar_button("verify", () => { console.log("verify button pressed"); });
 
-        gmail.tools.add_compose_button(compose, 'sign', function() {  
+		gmail.tools.add_compose_button(compose, 'sign', function() {  
 				var emailBod = compose.body();
 				const userEmail = gmail.get.user_email();
                 compose.bcc(userEmail);
-				
 				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
 
 				console.log("the body being signed:" + emailBod);

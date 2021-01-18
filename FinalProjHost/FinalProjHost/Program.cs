@@ -31,8 +31,9 @@ namespace FinalProjHost
             string appletID = "69d60184-b11c-43d1-a8ed-527f045cac14";
             // This is the path to the Intel Intel(R) DAL Trusted Application .dalp file that was created by the Intel(R) DAL Eclipse plug-in.
 
-            string appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj.dalp";//for regular program
+            //string appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj.dalp";//for regular program
             //appletPath = "C:\\DALapps\\sign_verify\\FinalProj\\bin\\FinalProj-debug.dalp"; //for debugger
+            string appletPath = "C:\\Users\\sorit\\Documents\\computers\\thirdyear\\semester1\\dal-secureenvironmentcode\\signatureextension\\FinalProj\\bin\\FinalProj.dalp";
 
             // Install the Trusted Application
             Console.WriteLine("Installing the applet.");
@@ -150,5 +151,6 @@ namespace FinalProjHost
             Console.WriteLine("Press Enter to finish.");
             Console.Read();
         }
+
     }
 }

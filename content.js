@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(
 }, false); */
 
 window.addEventListener("MyCustomMsg", function(e) {
-  console.log("msg from injected e "+e.detail.emailBody+e.detail.client);
+  console.log("msg from injected e sign "+e.detail.emailBody+e.detail.client);
   
   chrome.runtime.sendMessage({ msg: "sign email", data: {userEmail: e.detail.client, emailBod: e.detail.emailBody}}, (response) => {
     // If this message's recipient sends a response it will be handled here 
@@ -30,6 +30,18 @@ window.addEventListener("MyCustomMsg", function(e) {
       console.log("received response from background");
     }
 });
+
+/* window.addEventListener("verifyRequest", function(e) {//send email to verify
+  console.log("msg from injected e verify"+e.detail.emailBody+e.detail.client);
+  
+  chrome.runtime.sendMessage({ msg: "verify email", data: {userEmail: e.detail.client, emailBod: e.detail.emailBody}}, (response) => {
+    // If this message's recipient sends a response it will be handled here 
+    if (response) {
+      // do cool things with the response
+      console.log("received response from background");
+    }
+}); */
+
   
 }, false);
 

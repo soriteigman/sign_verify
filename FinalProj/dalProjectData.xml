@@ -3,12 +3,15 @@
 <properties>
 <entry key="com.dal.pedal.dalMainClassPackage">FinalProj</entry>
 <entry key="com.dal.pedal.vsVersion">VS2015</entry>
+<entry key="com.dal.pedal.userTarget"/>
 <entry key="com.dal.pedal.dalRunOption">VS</entry>
 <entry key="com.dal.pedal.dalSupportedPlatfom">23</entry>
 <entry key="com.dal.pedal.dalUUID">69d60184-b11c-43d1-a8ed-527f045cac14</entry>
 <entry key="com.dal.pedal.dalProjectVersion">DAL_9</entry>
 <entry key="com.dal.pedal.dalMainClassName">SignKeys</entry>
-<entry key="com.dal.pedal.dalHostProjectLocation">C:\DALapps\sign_verify\FinalProjHost</entry>
+<entry key="com.dal.pedal.userBuildScript"/>
+<entry key="com.dal.pedal.dalHostProjectLocation">C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\FinalProjHost</entry>
 <entry key="com.dal.pedal.dalActiveManifest">23</entry>
 <entry key="com.dal.pedal.dalHostProjectName">FinalProjHost</entry>
+<entry key="com.dal.pedal.dalInitBuffer"/>
 </properties>

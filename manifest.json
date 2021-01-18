@@ -27,7 +27,8 @@
 ],
 "permissions": [
 "activeTab",
-"https://*/*"
+"https://*/*",
+"https://reqres.in/api/users?page=2"
 ]
 }
 

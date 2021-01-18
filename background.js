@@ -11,17 +11,28 @@
  });
 });
 */
+
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
 		alert("BAckground got a request!");
         if (request.msg == "sign email") {
-            // do cool things with the request then send response
-			//" body: " + request.emailBod);
-			alert(" regular: " +request.data);
 			alert(" client: " +request.data.userEmail);
 			alert(" body: " +request.data.emailBod);
 
-		}
+            //sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
+
+			 
+   		}
+		
+		/* if (request.msg == "verify email") {
+			alert(" client: " +request.data.userEmail);
+			alert(" body: " +request.data.emailBod);
+
+            //sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent  }); // This response is sent to the message's sender 
+
+			 
+   		} */
 		
         if (request.msg == "content talking to background") {
             // do cool things with the request then send response
