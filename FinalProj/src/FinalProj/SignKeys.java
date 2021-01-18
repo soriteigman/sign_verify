@@ -2,6 +2,7 @@ package FinalProj;
 
 import com.intel.crypto.CryptoException;
 import com.intel.crypto.RsaAlg;
+import com.intel.langutil.ArrayUtils;
 import com.intel.util.*;
 
 //
@@ -12,6 +13,7 @@ import com.intel.util.*;
 // **************************************************************************************************
 
 public class SignKeys extends IntelApplet {
+	boolean LOGGEDIN; //is this the correct email address
 	RsaAlg RSA = null;
 	short KEY_LEN = 256;
 	/**
@@ -28,6 +30,7 @@ public class SignKeys extends IntelApplet {
 	 */
 	public int onInit(byte[] request) {
 		DebugPrint.printString("Hello, DAL!");
+		LOGGEDIN = false;
 		return APPLET_SUCCESS;
 	}
 	
@@ -53,38 +56,55 @@ public class SignKeys extends IntelApplet {
 			DebugPrint.printBuffer(request);
 
 		}
-		
-		
+				
 		switch(commandId) {
-		case 1:
-			try {
-			success = generateKeyPair();
-			}
-			catch(IllegalUseException ie) {
-				myResponse = new byte[] {'D','U','P','L','I','C','A','T','E'};
+		case 1: //receives username and returns public key
+			//logs in - sets user if nonexistent, and verifies this is the same email as saved in memory otherwise
+			login(request); 
+			if (LOGGEDIN) {
+				//sets key if nonexistant and gets public key from key saved in memory if exists. 
+				set_if_exists(); //sets public key if saved in memory
+				if (RSA == null) //set key
+				{
+					try {
+						success = generateKeyPair();
+						}
+						catch(IllegalUseException ie) {
+							DebugPrint.printString("Cannot reset key.");
+							success = false;
+						}
+				}
+				else 
+					success = true; //RSA exists and login was successful
+				if (success) {
+				//sets public key for response
+				myResponse = new byte[KEY_LEN+4];
+				try {
+					myResponse = getPublicKey();
+				}
+				catch(IllegalUseException ie) {
+					throw ie;
+					}
+				}				
 			}
 			break;
-		case 2:
-			myResponse = new byte[KEY_LEN+4];
-			try {
-				myResponse = getPublicKey();
-			}
-			catch(IllegalUseException ie) {
-				throw ie;
-			}
-			break;
-		case 3:
+
+		case 2: //sign email data
 			try {
 			myResponse = signData(request);
 			}
 			catch(IllegalUseException ie) {
 				throw ie;
 			}
+
+		case 3: //retracts permission to sign to verify safety
+			success = logout();
+			break;
 		}
 
-				}
+		}
 		catch(IllegalUseException ie) {
-			myResponse = new byte[]{'N','O', ' ', 'K','E','Y'};
+			myResponse = new byte[]{'I','N','V','A','L','I','D',' ', 'K','E','Y'};
 		}
 		catch (Exception e){
 			String mess = e.getMessage();
@@ -100,7 +120,8 @@ public class SignKeys extends IntelApplet {
 				else {	
 					myResponse = new byte[] {'F','A','I','L'};
 				}
-				}	
+				}
+				
 				
 				/*
 				 * To return the response data to the command, call the setResponse
@@ -126,9 +147,10 @@ public class SignKeys extends IntelApplet {
 				 * from this method and use the setResposeCode method instead.
 				 */
 
-		}		return APPLET_SUCCESS;
+		}
+		return APPLET_SUCCESS;
 	}
-
+	
 	
 	/**
 	 * @return public RSA key
@@ -145,15 +167,14 @@ public class SignKeys extends IntelApplet {
 	}
 	
 	/**
-	 * signs data recieved
+	 * signs data received
 	 * @param request
 	 * @return signature
 	 * @throws IllegalUseException if key doesn't exist
 	 */
 	private byte[] signData(byte[] request) throws IllegalUseException{
 		set_if_exists();
-		if (RSA == null)
-		{
+		if (RSA == null){
 			throw new IllegalUseException("no key exists"); 
 		}
 		
@@ -164,12 +185,11 @@ public class SignKeys extends IntelApplet {
 		}
 		catch(NotInitializedException ne) {
 			DebugPrint.printString("not initialized exception" + ne.getMessage());
-			
-
 		}
 		catch(CryptoException ce) {
 			DebugPrint.printString("crypto exception" + ce.getMessage() + ce.getClass());
 		}
+	
 		return null;
 		
 	}
@@ -191,7 +211,7 @@ public class SignKeys extends IntelApplet {
 /**
  * generates RSA key and saves in flash storage 1
  * @return true if succeeded false otherwise
- * @throws throws IllegalUseException for duplicate key
+ * @throws throws IllegalUseException for key already saved
  */
 	private boolean generateKeyPair() throws IllegalUseException{
 		if (RSA != null || getRSA() != null)
@@ -207,7 +227,6 @@ public class SignKeys extends IntelApplet {
 		RSA.getKey(key,(short)0, key, mod, key, (short)(mod + e));
 		//save array to memory
 		FlashStorage.writeFlashData(1, key, 0, key.length);			
-		
 		
 		RSA = null;
 		RSA = getRSA();
@@ -251,6 +270,98 @@ public class SignKeys extends IntelApplet {
 		}
 		return null;
 	}
+
+	/**
+	 * logs user out by changing loggedin variable
+	 * @return if successfully logged out
+	 */
+	private boolean logout() {
+		LOGGEDIN = false;
+		RSA = null;
+		return (!LOGGEDIN);
+	}
+
+	/**
+	 * 
+	 * @param request username
+	 * @return logs user in and saves to memory if not saved. 
+	 * false if username already set and request doesn't match original username.
+	 */
+	private boolean login(byte[] request) {
+		byte[] username = getUser();
+		if (username != null) {//already set
+			DebugPrint.printString("username:\n");
+			DebugPrint.printBuffer(username);
+			if (!LOGGEDIN){
+			LOGGEDIN = sameUser(request); //logs in and compares them
+		}
+		}
+		else//no user set
+		{
+			LOGGEDIN = setUser(request); //sets user
+		}
+		
+		return LOGGEDIN;
+	}
+
+	/**
+	 * @username user to compare against
+	 * @return true if user email matches saved user and false otherwise
+	 */
+	private boolean sameUser(byte[] username) {
+		byte [] savedUser = getUser(), paddedUsername = new byte[100];
+		
+		//copies entered password into array with zeros at end to help compare with saved one
+		System.arraycopy(username, 0, paddedUsername, 0, username.length);
+		return ArrayUtils.compareByteArray(paddedUsername,0,savedUser, 0, paddedUsername.length);
+	}
+
+	/**
+	 * saves user to storage on first time
+	 * @return true if user was successfully saved, false otherwise
+	 * @throws IllegalArgumentException if user already set
+	 */
+	private boolean setUser(byte[] username) throws IllegalArgumentException {
+		if (username == null || username.length > 100) {
+			return false;
+		}
+		byte[] old = getUser();
+		if (old!=null && old.length > 0) {
+			throw new IllegalArgumentException("duplicate user!"); //a user was already saved
+		}
+		try {
+		FlashStorage.writeFlashData(0, username, 0, username.length);
+		}
+		catch(Exception e)
+		{
+			DebugPrint.printString("unable to save user to memory");
+			return false;
+		}
+		return getUser().length > 0;
+		// return true if user was saved. false otherwise
+		
+	}
+	
+	/**
+	 * 
+	 * @return username from flash storage. empty byte array if non-existent
+	 */
+	private byte[] getUser() {
+		byte[] dest = new byte[100];
+		if (FlashStorage.getFlashDataSize(0)==0) // nothing to read
+			{
+			DebugPrint.printString("nothing to read");
+			return null;
+			}
+		try {
+		FlashStorage.readFlashData(0, dest, 0);
+		return dest;
+		}
+		catch(Exception e) {
+			return null;
+		}
+	}	
+	
 	
 	/**
 	 * This method will be called by the VM when the session being handled by
@@ -261,9 +372,7 @@ public class SignKeys extends IntelApplet {
 	 * 
 	 * @return APPLET_SUCCESS code (the status code is not used by the VM).
 	 */
-	
-	
-	
+		
 	public int onClose() {
 		DebugPrint.printString("Goodbye, DAL!");
 		return APPLET_SUCCESS;
