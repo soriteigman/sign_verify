@@ -54,15 +54,16 @@ function startExtension(gmail) {
 			//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
 
 		});
-		
-		//console.log("id:", id, "url:", url, 'body', body, 'xhr', xhr);
-		//console.log(gmail.get.email_data(id));
+
 	})
 
+window.addEventListener("ContentToExtension", function(e) {
+  console.log("msg from content to injected "+e.detail.hello);
+}, false);
 
     gmail.observe.on("compose", function(compose, type){
         const userEmail = gmail.get.user_email();
-        console.log("Hello, " + userEmail + ". This is your extension talking!");
+        //console.log("Hello, " + userEmail + ". This is your extension talking!");
 		
         //gmail.tools.add_toolbar_button("verify", () => { console.log("verify button pressed"); });
 
@@ -71,14 +72,11 @@ function startExtension(gmail) {
 				const userEmail = gmail.get.user_email();
                 compose.bcc(userEmail);
 				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
-
+	
 				console.log("the body being signed:" + emailBod);
 				
 		});
     });
-	//targetWindow.postMessage("extension sending msg", "*");
-	//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: 'extension sending msg'}));
-	console.log("got up to here");
 
 }
 

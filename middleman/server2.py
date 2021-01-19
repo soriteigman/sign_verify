@@ -49,7 +49,8 @@ while True:
         print(e)
 
     print("received client message")
-    
+    sendData = str(len(recv)).encode()+recv
+    c_socket.send(sendData)
     user = c_socket.recv(MAX_USER_ID).decode()
 
     print("id is", user, end = "")

@@ -49,8 +49,12 @@ namespace sampleTest
                     message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
                     Console.WriteLine(message1);
 
-                    // Encode the data string into a byte array.  
-                    byte[] msg = Encoding.ASCII.GetBytes(user);
+                        bytesRec = sender.Receive(bytes);
+                     message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
+                     Console.WriteLine(message1);
+                     
+                        // Encode the data string into a byte array.  
+                        byte[] msg = Encoding.ASCII.GetBytes(user);
 
                     // Send the data through the socket.  
                     int bytesSent = sender.Send(msg);
