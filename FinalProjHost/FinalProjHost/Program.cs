@@ -17,7 +17,7 @@ namespace FinalProjHost
         /*
          * based on code from docs.microsoft.com 
          */
-        public static String getSeed(String user)
+        public static String connectServer(String user)
         {
             // Data buffer for incoming data.  
             byte[] bytes = new byte[1024];
@@ -44,8 +44,11 @@ namespace FinalProjHost
                     Console.WriteLine("Socket connected to {0}",
                         sender.RemoteEndPoint.ToString());
 
+					while (true){
+					
                     // Receive the request from the remote device.  
                     int bytesRec = sender.Receive(bytes);
+					Console.WriteLine(
                     message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
                     Console.WriteLine(message1);
 
@@ -54,7 +57,7 @@ namespace FinalProjHost
 
                     // Send the data through the socket.  
                     int bytesSent = sender.Send(msg);
-
+					}
                     // Release the socket.  
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
@@ -99,9 +102,10 @@ namespace FinalProjHost
             }
 
             String username = "Avi@gmail.com";
-
-            getSeed(username);
-
+			
+			//main part of program. calls python
+			connectServer(username);
+			
             //returns byte array of all information necessary to verify the email.
             //byte[] email = signFunc(username, emailBody);
 

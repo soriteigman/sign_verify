@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		alert("Background got a request!");
         if (request.msg == "sign email") {
 			alert(" client: " +request.data.userEmail + " body: " +request.data.emailBod);
-			
+			accessServer(request.data.userEmail+"\n" + request.data.emailBod)
 			
             //sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
 
@@ -42,39 +42,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		//alert(request.msg);
     }
 });
-/*$.ajax({
-  type: "POST",
-  url: "http://localhost:5525/hello",
-  data: { d: "hello everyone1" },
-  success: function(data){
-          alert("I got a response!!!!  " + this.responseText);
 
-  }
-});
-*/
-
+function accessServer(mess){
 function callback() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
-		alert("i'm done! the response is" + xhr.responseText)
+		alert("i'm done")
 
         if (xhr.status === 200) {
             result = xhr.responseText;
-           alert("it worked!" +result)
+           alert("response received " +result)
         }
     }
 };
 var xhr = new XMLHttpRequest();
-xhr.open("GET", "http://localhost:5525/hello", true);
+xhr.open("POST", "http://localhost:5525/hello", true);
 xhr.onreadystatechange = callback;
-xhr.send();
-
-/*var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-    }
-  };
-  alert("sending http request")
-  xhttp.open("GET", "http://localhost:5525/hello", true);
-  xhttp.send();
-  alert("just respond!!!!!")
-  */
+xhr.send(mess+"\r\n\r\n");
+/*"lng uninteligent sentence that can act as some long long data which will sort of be like what we really want to send. which is - not sure what actualy. bytes? sometimes - in verify.\r\n\r\n");*/
+}
