@@ -20,7 +20,7 @@ def application(environ, start_response):
     )
     return ''
 
-# server_socket = socket.socket()
+# build socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 server_socket.bind(("0.0.0.0", PORT))
@@ -32,7 +32,7 @@ print("waiting for connections")
 c_socket, c_address = server_socket.accept()
 print("c# connected!")
 # send
-client_socket.send("do you hear me?".encode())
+c_socket.send("connected".encode())
 
 while True:
     try:
@@ -40,48 +40,33 @@ while True:
         client_socket.settimeout(SOCKET_TIMEOUT)
         print("got a connection!")
         # receives client request
-        recv = client_socket.recv(MAX_REC).decode()
-        recvend=recv
+        recv = client_socket.recv(MAX_REC)
         print (recv)
-        while recvend[-4:] != b'\r\n\r\n':  # empties socket until end character received
-            recvend = client_socket.recv(MAX_REC)
-            print(recvend.decode())
+        while recv[-4:] != b'\r\n\r\n':  # empties socket until end character received
+            recv += client_socket.recv(MAX_REC)
+        print("whole message is" + recv.decode())
     except Exception as e:
         print(e)
 
     print("received client message")
+    
+    user = c_socket.recv(MAX_USER_ID).decode()
+
+    print("id is", user, end = "")
+
     # send
-    client_socket.send("HTTP/1.1 200 OK Internal\r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\nWrite long detailed message here to show in server".encode())
+    # receives response from c# to send extension
+    
+    response = "HTTP/1.1 200 OK Internal\r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n" + user
+    client_socket.send(response.encode())
 
     # close connection
     print("closing connection")
     client_socket.close()
-
-
-user = c_socket.recv(MAX_USER_ID).decode()
-
-print("id is", user, end = "")
-
+    
 print("closing connection")
 c_socket.close()
 server_socket.close()
-'''# connects to c# host
-
-print("client connected")
-# send
-client_socket.send("do you hear me?".encode())
-
-
-user = client_socket.recv(MAX_USER_ID).decode()
-
-print("id is", user, end = "")
-
-
-# close connection
-print("closing connection")
-client_socket.close()
-server_socket.close()
-'''
 '''print("saving information to file")
 # save user information and seed to file
 with open("secret.txt", 'w') as file:

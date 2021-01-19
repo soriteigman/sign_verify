@@ -1,4 +1,4 @@
-package FinalProj;
+package signVerify;
 
 import com.intel.crypto.CryptoException;
 import com.intel.crypto.RsaAlg;
@@ -6,13 +6,14 @@ import com.intel.langutil.ArrayUtils;
 import com.intel.util.*;
 
 //
-// Implementation of DAL Trusted Application: FinalProj 
+// Implementation of DAL Trusted Application: signVerify 
 //
 // **************************************************************************************************
 // NOTE:  This default Trusted Application implementation is intended for DAL API Level 7 and above
 // **************************************************************************************************
 
-public class SignKeys extends IntelApplet {
+public class signVerify extends IntelApplet {
+
 	boolean LOGGEDIN; //is this the correct email address
 	RsaAlg RSA = null;
 	short KEY_LEN = 256;
@@ -174,7 +175,8 @@ public class SignKeys extends IntelApplet {
 	 */
 	private byte[] signData(byte[] request) throws IllegalUseException{
 		set_if_exists();
-		if (RSA == null){
+		if (RSA == null)
+		{
 			throw new IllegalUseException("no key exists"); 
 		}
 		
@@ -185,11 +187,12 @@ public class SignKeys extends IntelApplet {
 		}
 		catch(NotInitializedException ne) {
 			DebugPrint.printString("not initialized exception" + ne.getMessage());
+			
+
 		}
 		catch(CryptoException ce) {
 			DebugPrint.printString("crypto exception" + ce.getMessage() + ce.getClass());
 		}
-	
 		return null;
 		
 	}

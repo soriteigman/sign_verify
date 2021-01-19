@@ -1,13 +1,13 @@
-applet.id: 69d60184-b11c-43d1-a8ed-527f045cac14
-applet.name: FinalProj
+applet.id: ea12e55b-60a2-4311-a159-194d7f393d43
+applet.name: signVerify
 applet.vendor: Intel
 applet.version: 1.0
 security.version: 1
 applet.heap.size: 50000
 applet.platform: CSE
 applet.api.level: 9
-applet.description: This is the FinalProj applet
-applet.entry_class: FinalProj.SignKeys
+applet.description: This is the signVerify applet
+applet.entry_class: signVerify.signVerify
 applet.flash.quota: 1000
 applet.debug.enable: true
 applet.written.by.intel: true

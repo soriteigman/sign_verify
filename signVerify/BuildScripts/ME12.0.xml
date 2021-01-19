@@ -8,11 +8,11 @@
 -->
 <project name="Intel(R) DAL Build" default="postBuild" basedir=".">
 	<!-- The name of the project (in Eclipse) -->
-	<property name="project_name" 						value="FinalProj"/>
+	<property name="project_name" 						value="signVerify"/>
 	<!-- The build directory - note that the .jeff and .pack files in this directory will be deleted -->
-	<property name="bin_dir" 							location="C:\DALapps\sign_verify\FinalProj\bin\ME12.0"/>
+	<property name="bin_dir" 							location="C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerify\bin\ME12.0"/>
 	<!-- Project directory -->
-	<property name="project_dir" 						value="C:/DALapps/sign_verify/FinalProj"/>
+	<property name="project_dir" 						value="C:/Users/sorit/Documents/computers/third year/semester 1/dal- secure environment code/signature extension/signVerify"/>
 	<!-- Intel DAL SDK directory -->
 	<property name="sdk_dir" 							value="C:\DALsdk\"/> 
 	<!-- value indicating if this is a compilation for signing -->
