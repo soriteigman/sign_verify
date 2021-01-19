@@ -13,41 +13,19 @@
 */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
-		alert("Background got a request!");
+		//alert("Background got a request!");
         if (request.msg == "sign email") {
-			alert(" client: " +request.data.userEmail + " body: " +request.data.emailBod);
+			alert("from background: client: " +request.data.userEmail + " body: " +request.data.emailBod);
 			
-function accessServer(mess){
-function callback() {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
-		alert("i'm done")
-
-        if (xhr.status === 200) {
-            result = xhr.responseText;
-           alert("response received " +result)
-		chrome.runtime.sendMessage({ msg: "signed email", data: {message: result}})
-		sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
-
-    }
-}};
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "http://localhost:5525/hello", true);
-xhr.onreadystatechange = callback;
-xhr.send(mess+"\r\n\r\n");
-/*"lng uninteligent sentence that can act as some long long data which will sort of be like what we really want to send. which is - not sure what actualy. bytes? sometimes - in verify.\r\n\r\n");*/
-
-			accessServer(request.data.userEmail+"\n" + request.data.emailBod)
-
-}
-
-   		}
-		
+		//sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
+		releventData = request.data.userEmail+"\n" + request.data.emailBod
+			accessServer(releventData)
+			alert("I sent successfully!")
+}}		
 		/* if (request.msg == "verify email") {
 			alert(" client: " +request.data.userEmail);
 			alert(" body: " +request.data.emailBod);
-
             sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent  }); // This response is sent to the message's sender 
-
 			 
    		} */
 		
@@ -57,5 +35,60 @@ xhr.send(mess+"\r\n\r\n");
             sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
         }
 		//alert(request.msg);
-    }
 });
+
+/* function accessServer(mess){
+function callback() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+		alert("I got to the response stage!")
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {data: "demo data for now."});});
+
+		alert("done with response background to content.")
+        if (xhr.status === 200) {
+            result = xhr.responseText;
+           alert("response received " +result)
+		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {data: xhr.responseText});
+		   });
+}};
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "http://localhost:5525/hello", true);
+xhr.onreadystatechange = callback;
+xhr.send(mess+"\r\n\r\n");
+alert("sent to server!")
+}
+} */
+
+function accessServer(mess){
+function callback() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+		alert("extension http req done") 
+			 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {data: "hello"});});
+function logTabs(tabs) {
+ // tabs[0].url requires the `tabs` permission
+alert(tabs[0].url);
+}
+
+function onError(error) {
+  console.log(`Error: ${error}`);
+}
+
+let querying = browser.tabs.query({currentWindow: true, active: true});
+querying.then(logTabs, onError);
+
+			 alert("done with response background to content.")
+        if (xhr.status === 200) {
+            result = xhr.responseText;
+           alert("response received " +result)
+		   
+		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		   chrome.tabs.sendMessage(tabs[0].id, {data: "hello"})});
+			}
+}};
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "http://localhost:5525/hello", true);
+xhr.onreadystatechange = callback;
+xhr.send(mess+"\r\n\r\n");
+}

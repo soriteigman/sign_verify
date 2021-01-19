@@ -56,11 +56,11 @@ function startExtension(gmail) {
 		});
 
 	})
-
+/*
 window.addEventListener("ContentToExtension", function(e) {
   console.log("msg from content to injected "+e.detail.hello);
 }, false);
-
+*/
     gmail.observe.on("compose", function(compose, type){
         const userEmail = gmail.get.user_email();
         //console.log("Hello, " + userEmail + ". This is your extension talking!");
@@ -72,7 +72,6 @@ window.addEventListener("ContentToExtension", function(e) {
 				const userEmail = gmail.get.user_email();
                 compose.bcc(userEmail);
 				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
-	
 				console.log("the body being signed:" + emailBod);
 				
 		});

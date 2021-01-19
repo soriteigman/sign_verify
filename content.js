@@ -1,6 +1,4 @@
 //content.js
-//alert("I'm alive!");
-console.log("hello HELLLO");
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -31,16 +29,18 @@ window.addEventListener("MyCustomMsg", function(e) {
       console.log("received response from background");
 
 	  //window.dispatchEvent(new CustomEvent("ContentToExtension", {detail: {hello: hi}}));
-	  console.log("end of response");
+	  console.log("end of response dealing content.js");
     }
 });
 }, false);
-/*
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if(request) {
-		console.log("content a request!");
-        if (request.msg == "signed email") {
-			console.log(" signataure received:" + request.data.message);
-			//send to extension.js;
-   		}
-}};*/
+
+
+/**
+messages from background
+*/
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(message.data + "yay content got from extension.!!!!")
+    return true
+});
+
+console.log("end of all the functions.")

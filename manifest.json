@@ -28,6 +28,7 @@
 "permissions": [
 "contextMenus",
 "activeTab",
+"tabs",
 "https://*/*",
 "https://reqres.in/api/users?page=2",
 "http://localhost/*",
