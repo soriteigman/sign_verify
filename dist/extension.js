@@ -18,8 +18,18 @@ function startExtension(gmail) {
     window.gmail = gmail;
 	
 	
-	gmail.observe.on("load_email_menu", function(id,body) {//id, url, body, xhr
+	gmail.observe.on("load_email_menu", function(obj) {//id, url, body, xhr
+	//gmail.observe.on('view_email', function(obj) {
 		
+		console.log("view email option"+obj.arguments+"#1");
+		console.log("view email option"+obj.textContent+"#2");
+		console.log("view email option"+obj.data+"#3");
+		console.log("view email option"+obj.text+"#4");
+		console.log("view email option"+obj.value+"#5");
+		console.log("view email option"+obj.emailBody+"#6");
+
+
+	
 		/* gmail.tools.add_toolbar_button("verify", () => { 
 			var emailBod = compose.body();
 			const userEmail = gmail.get.user_email();
@@ -29,18 +39,19 @@ function startExtension(gmail) {
 		}); */
 		
 		gmail.tools.add_toolbar_button('verify', function() {
+			
 			console.log("toolbar button 2.0");
 			//var emailBod = gmail.get.current_email().body;
-			console.log(gmail.get.current_page().body+"#2");
-			console.log(gmail.get.current_page()+"#3");
+			//console.log(gmail.get.current_page().body+"#2");
+			//console.log(gmail.get.current_page()+"#3");
 			//console.log(gmail.get.email_data().email.body+"#4");
 			//console.log(gmail.dom.email_data(id)+"#5");
-			console.log(body);
+			//console.log(body);
 
 
 			const userEmail = gmail.get.user_email();
 			console.log("verify button pressed");
-			window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
+			//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
 
 		});
 		

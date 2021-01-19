@@ -26,6 +26,7 @@
         "dist/extension.js"
 ],
 "permissions": [
+"contextMenus",
 "activeTab",
 "https://*/*",
 "https://reqres.in/api/users?page=2"

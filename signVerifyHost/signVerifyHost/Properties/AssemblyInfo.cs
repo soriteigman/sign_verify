@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("sampleTest")]
+[assembly: AssemblyTitle("signVerifyHost")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("sampleTest")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCompany("Intel")]
+[assembly: AssemblyProduct("signVerifyHost")]
+[assembly: AssemblyCopyright("Copyright © Intel 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("137c0db5-fe58-405a-ae03-34ef72ec9e3d")]
+[assembly: Guid("4eae5ad4-925f-48ae-a3ef-54cd6b2bede8")]
 
 // Version information for an assembly consists of the following four values:
 //

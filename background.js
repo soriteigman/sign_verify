@@ -42,3 +42,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		//alert(request.msg);
     }
 });
+
+chrome.contextMenus.create({
+    title: 'verify',
+    onclick: function(e){
+        console.log(e)
+    }
+
+}, function(){})

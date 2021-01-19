@@ -1,0 +1,6 @@
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\bin\Amulet\signVerifyHost.exe
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\bin\Amulet\signVerifyHost.pdb
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\bin\Amulet\JhiSharp.dll
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\obj\x86\Amulet\signVerifyHost.csprojResolveAssemblyReference.cache
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\obj\x86\Amulet\signVerifyHost.exe
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\signVerifyHost\signVerifyHost\obj\x86\Amulet\signVerifyHost.pdb
