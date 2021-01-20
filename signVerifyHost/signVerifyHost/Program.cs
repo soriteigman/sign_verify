@@ -12,14 +12,14 @@ namespace signVerifyHost
     { 
         static int INT_LEN_ARRAY = 4; //amount of bytes for each length field in email
         static int KEY_LEN = 260; //based on algorithm being used
+        static int PORT = 5525;
 
-        /*
-         * based on code from docs.microsoft.com 
-         */
-        public static String serverConnect(String user)
+
+        static void Main(string[] args)
         {
+
             // Data buffer for incoming data.  
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[2048];
 
             //seed from response
             String message1 = null;
@@ -31,7 +31,7 @@ namespace signVerifyHost
                 // This example uses port 6000 on the local computer.  
                 IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
 
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, 6000);
+                IPEndPoint remoteEP = new IPEndPoint(ipAddress, PORT);
                 // Create a TCP/IP  socket. 
                 Socket sender = new Socket(ipAddress.AddressFamily,
                     SocketType.Stream, ProtocolType.Tcp);
@@ -43,17 +43,45 @@ namespace signVerifyHost
                     Console.WriteLine("Socket connected to {0}",
                         sender.RemoteEndPoint.ToString());
 
-                    // Receive the request from the remote device.  
                     int bytesRec = sender.Receive(bytes);
                     message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
                     Console.WriteLine(message1);
 
-                    // Encode the data string into a byte array.  
-                    byte[] msg = Encoding.ASCII.GetBytes(user);
+                    while (true)
+                    {
 
-                    // Send the data through the socket.  
-                    int bytesSent = sender.Send(msg);
+                        // Receive the request from the remote device.  
+                        bytesRec = sender.Receive(bytes);
+                        message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
+                        Console.WriteLine(message1);
 
+                        /*
+                        if (SIGN) { */
+
+          
+                        //Allocate a buffer
+                        var emailBody = new byte[20];
+                        
+                        String username = "Avi@gmail.com";
+
+                        //returns byte array of all information necessary to verify the email.
+                        byte[] email = signFunc(username, emailBody);
+
+                        // if (email == null) { some error message returned}
+                        /*}
+                       else { */
+                        //verifies bytes at end of email given
+                        Console.WriteLine("verified: " + verifyFunc(username, email));
+                        // }
+
+
+
+                        // Encode the data string into a byte array.  
+                        byte[] msg = Encoding.ASCII.GetBytes(username);
+
+                        // Send the data through the socket.  
+                        int bytesSent = sender.Send(msg);
+                    }
                     // Release the socket.  
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
@@ -77,40 +105,10 @@ namespace signVerifyHost
             {
                 Console.WriteLine(e.ToString());
             }
-            return message1;
 
-        }
+        
 
-
-        static void Main(string[] args)
-        {
-
-            /*
-           if (SIGN) { */
-
-            //creating nonce
-            Console.Out.WriteLine("Creating nonce...");
-            //Allocate a buffer
-            var emailBody = new byte[20];
-            //Generate a cryptographically random set of bytes
-            using (var Rnd = RandomNumberGenerator.Create())
-            {
-                Rnd.GetBytes(emailBody);
-            }
-
-            String username = "Avi@gmail.com";
-
-            //returns byte array of all information necessary to verify the email.
-            byte[] email = signFunc(username, emailBody);
-
-            // if (email == null) { some error message returned}
-            /*}
-           else { */
-            //verifies bytes at end of email given
-            Console.WriteLine("verified: " + verifyFunc(username, email));
-            // }
-
-          
+       
             Console.WriteLine("Press Enter to finish.");
             Console.Read();
         }

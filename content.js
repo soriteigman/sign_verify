@@ -20,10 +20,7 @@ content = message.data;
 	console.log("got a msg from window thing"+ event.message+" event.origin: "+event.origin);}, false); */
 
 window.addEventListener("MyCustomMsg", function(e) {
-  console.log("msg from injected e sign "+e.detail.emailBody+e.detail.client);
-  chrome.runtime.sendMessage({ msg: "sign email", data: {userEmail: e.detail.client, emailBod: e.detail.emailBody}}, /*(response) => {
-    // If this message's recipient sends a response it will be handled here 
-    if (response) {
-      console.log("received response from background");
-    }}*/);
+	console.log("msg from injected e sign "+e.detail.type+e.detail.emailBody+e.detail.client);
+	chrome.runtime.sendMessage({ msg: "sign/verify email", data: {type: e.detail.type, userEmail: e.detail.client, emailBod: e.detail.emailBody}});
+  
 }, false);

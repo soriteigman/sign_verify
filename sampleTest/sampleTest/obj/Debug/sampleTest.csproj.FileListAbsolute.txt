@@ -6,3 +6,5 @@ C:\DALapps\sign_verify\sampleTest\sampleTest\bin\Debug\sampleTest.exe
 C:\DALapps\sign_verify\sampleTest\sampleTest\bin\Debug\sampleTest.pdb
 C:\DALapps\sign_verify\sampleTest\sampleTest\obj\Debug\sampleTest.exe
 C:\DALapps\sign_verify\sampleTest\sampleTest\obj\Debug\sampleTest.pdb
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\sampleTest\sampleTest\obj\Debug\sampleTest.exe
+C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\sampleTest\sampleTest\obj\Debug\sampleTest.pdb

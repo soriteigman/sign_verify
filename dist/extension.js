@@ -20,14 +20,6 @@ function startExtension(gmail) {
     window.gmail = gmail;
 
 	/* gmail.observe.on("load_email_menu", function(obj) {/
-	//gmail.observe.on('view_email', function(obj) {
-		
-		console.log("view email option"+obj.arguments+"#1");
-		console.log("view email option"+obj.textContent+"#2");
-		console.log("view email option"+obj.data+"#3");
-		console.log("view email option"+obj.text+"#4");
-		console.log("view email option"+obj.value+"#5");
-		console.log("view email option"+obj.emailBody+"#6");
 	
 		/* gmail.tools.add_toolbar_button("verify", () => { 
 			var emailBod = compose.body();
@@ -54,12 +46,49 @@ function startExtension(gmail) {
 	})
  */
  
- gmail.observe.on("open_email", function(id, url, body, xhr) {
+ /* gmail.observe.on("open_email", function(id, url, body, xhr) {
 	 console.log("hello.");
-//console.log("the emai is: " + email.body());
+	 //console.log(gmail.get.email_data(id).body);
+	 console.log("the emai is: " + gmail.dom("body");
+
+	console.log("the emai is: " + email.body);
   //console.log("id:", id, "url:", url, 'body', body, 'xhr', xhr);
   //console.log(gmail.new.get.email_data(id));
-})
+}) */
+	gmail.observe.on("open_email", function(id, url, body, xhr) {
+		const userEmail = gmail.get.user_email();
+		var id=gmail.new.get.email_id();
+		console.log(id);
+		var data=gmail.new.get.email_data(id);
+		console.log(data);
+		var emailBod=data.content_html;
+		var sequence="$@$@";
+		var i=0; 
+		var result="";
+		//extracts signed part of email body
+		while(i<emailBod.length-8){
+
+			if(emailBod[i]==sequence[0]&&emailBod[i+1]==sequence[1]&&emailBod[i+2]==sequence[2]&&emailBod[i+3]==sequence[3]){
+				i=i+4;
+				while(i<emailBod.length-4){
+					if(emailBod[i]==sequence[0]&&emailBod[i+1]==sequence[1]&&emailBod[i+2]==sequence[2]&&emailBod[i+3]==sequence[3]){
+						i=emailBod.length;//leave both loops.
+						}
+					else{
+						result=result+emailBod[i];
+						i=i+1;
+					}
+				}
+			}
+			else{
+				i=i+1;
+			}
+		}
+		console.log(result);
+		window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "v", emailBody: result, client: userEmail}}));
+
+		
+	});
 
     gmail.observe.on("compose", function(compose, type){
 		//event listener from content
@@ -71,7 +100,7 @@ function startExtension(gmail) {
 	  
 	  //sends to the current email address too, in addition to whoever else was in the send
 	  compose.bcc(userEmail);
-	  compose.body(compose.body() + signature +"YOU ADDD ME!");
+	  compose.body(compose.body() + signature +"$@$@YOU ADDD ME!$@$@");
 
 	  //sendss email to avoid extra characters being added to signature text
 	  compose.send();
@@ -84,7 +113,7 @@ function startExtension(gmail) {
 				var emailBod = compose.body();
 				const userEmail = gmail.get.user_email();
 				//send email to be signed to content script
-				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
+				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "s", emailBody: emailBod, client: userEmail}}));
 				console.log("the body being signed:" + emailBod);
 		});
     });

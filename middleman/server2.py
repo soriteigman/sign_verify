@@ -36,21 +36,39 @@ c_socket.send("connected".encode())
 
 while True:
     try:
+        #connection from browser
         client_socket, client_address = server_socket.accept()
         client_socket.settimeout(SOCKET_TIMEOUT)
         print("got a connection!")
         # receives client request
         recv = client_socket.recv(MAX_REC)
         print (recv)
-        while recv[-4:] != b'\r\n\r\n':  # empties socket until end character received
+        while recv[-4:] != b'\r\n\r\nv' and recv[-4:] != b'\r\n\r\ns':  # empties socket until end character received
             recv += client_socket.recv(MAX_REC)
         print("whole message is" + recv.decode())
     except Exception as e:
         print(e)
 
     print("received client message")
-    sendData = str(len(recv)).encode()+recv
-    c_socket.send(sendData)
+    # sends message to c#
+    # s or v byte
+    print(bytes([recv[-1]]))
+    c_socket.send(bytes([recv[-1]]))
+    # c_socket email address
+    print("split up received mssage" +str(recv.split(b'\r\n\r\n')))
+    # http request header from the data in body
+    message = recv.split(b'\r\n\r\n')[1]
+    #splitting email address
+    email = message.split(b'\n')[0]
+    sendStuff = (str(len(email)).zfill(4)).encode() + email
+    c_socket.send(sendStuff)
+    # get request body
+    req = "\n".join(message.split(b'\n')[1:])
+    sendStuff = (str(len(req)).zfill(4)).encode() + req
+    sendData = str(len(recv)+1).encode() +recv
+    c_socket.send(sendStuff)
+    
+    #get response
     user = c_socket.recv(MAX_USER_ID).decode()
 
     print("id is", user, end = "")
