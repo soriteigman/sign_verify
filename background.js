@@ -16,63 +16,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
 		//alert("Background got a request!");
         if (request.msg == "sign email") {
-			alert("from background: client: " +request.data.userEmail + " body: " +request.data.emailBod);
-			
-		//sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
-		releventData = request.data.userEmail+"\n" + request.data.emailBod
-		
-		/*
-		//syncronous server calling.
-		let response = await new Promise(resolve => {
-   var xhr = new XMLHttpRequest();
-   xhr.open("GET", url, true);
-   xhr.onload = function(e) {
-     resolve(xhr.response);
-   };
-   xhr.onerror = function () {
-     resolve(undefined);
-     console.error("** An error occurred during the XMLHttpRequest");
-   };
-   xhr.send();
-});*/
-
-sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
-
+			releventData = request.data.userEmail+"\n" + request.data.emailBod
+			//sends data to server
 			accessServer(releventData)
-			alert("I sent successfully!")
+			alert("I sent successfully! from background: client: " +request.data.userEmail + " body: " +request.data.emailBod);
 }}		
-		/* if (request.msg == "verify email") {
+		if (request.msg == "verify email") {
 			alert(" client: " +request.data.userEmail);
 			alert(" body: " +request.data.emailBod);
-            sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent  }); // This response is sent to the message's sender 
-			 
-   		} */
+            sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
+   		}
 		
         if (request.msg == "content talking to background") {
             // do cool things with the request then send response
             //alert("msg received from content to background" );
             sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
         }
-		//alert(request.msg);
 });
 
 	
+//calls python server for signing and verifying
 function accessServer(mess){
-	
-	
 function callback() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
 		alert("extension http req done") 
+		//response background to content
 			 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  chrome.tabs.sendMessage(tabs[0].id, {data: "hello"});});
-			 alert("done with response background to content.")
-        if (xhr.status === 200) {
+		chrome.tabs.sendMessage(tabs[0].id, {data: xhr.responseText, data1: "hello"});});
+        //deal with response if successful status
+		if (xhr.status === 200) {
             result = xhr.responseText;
            alert("response received " +result)
 		   
+		   //response background to content
 		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		   chrome.tabs.sendMessage(tabs[0].id, {data: "hello"})});
 			}
+		
 }};
 var xhr = new XMLHttpRequest();
 xhr.open("POST", "http://localhost:5525/hello", true);

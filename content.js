@@ -6,10 +6,9 @@ messages from background
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 content = message.data; 
  console.log(content + " content from background.");
-	//send message to extension.js
-  var event = new CustomEvent('sendChromeData', {detail: content});
+	//send message to extension.js with signature
+  var event = new CustomEvent('ContentToExtension', {detail: content});
   window.dispatchEvent(event);
-	console.log("sent event from content!");
     return true;
 });
 
