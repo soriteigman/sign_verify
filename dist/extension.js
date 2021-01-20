@@ -72,16 +72,13 @@ window.addEventListener("ContentToExtension", function(e) {
 				var emailBod = compose.body();
 				const userEmail = gmail.get.user_email();
 				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
-				console.log("the body being signed:" + emailBod);		
+				console.log("the body being signed:" + emailBod);
 		});
     });
-	
-	// Page script
+//event listener from content
 window.addEventListener('sendChromeData', function(evt) {
   console.log("extesnsion got evnent!" + evt.detail);
 });
-var event = new CustomEvent('LoadContent');
-window.dispatchEvent(event);
 
 }
 
