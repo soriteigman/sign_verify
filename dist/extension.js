@@ -46,29 +46,26 @@ function startExtension(gmail) {
 	})
  */
  
- /* gmail.observe.on("open_email", function(id, url, body, xhr) {
-	 console.log("hello.");
-	 //console.log(gmail.get.email_data(id).body);
-	 console.log("the emai is: " + gmail.dom("body");
-
-	console.log("the emai is: " + email.body);
-  //console.log("id:", id, "url:", url, 'body', body, 'xhr', xhr);
-  //console.log(gmail.new.get.email_data(id));
-}) */
 	gmail.observe.on("open_email", function(id, url, body, xhr) {
-		const userEmail = gmail.get.user_email();
-		var id=gmail.new.get.email_id();
-		console.log(id);
-		var data=gmail.new.get.email_data(id);
+
+ 		const userEmail = gmail.get.user_email();
+		var id1=gmail.new.get.email_id();
+		console.log(id1);
+		var data=gmail.new.get.email_data(id1);
 		console.log(data);
+		if (!data){
+			data=gmail.new.get.email_data();
+			console.log(data);
+		}
 		var emailBod=data.content_html;
+		console.log(emailBod);
 		var sequence="$@$@";
 		var i=0; 
-		var result="";
+		var result="";   
 		//extracts signed part of email body
 		while(i<emailBod.length-8){
 
-			if(emailBod[i]==sequence[0]&&emailBod[i+1]==sequence[1]&&emailBod[i+2]==sequence[2]&&emailBod[i+3]==sequence[3]){
+			if(emailBod[i]==sequence[0] && emailBod[i+1]==sequence[1]&&emailBod[i+2]==sequence[2]&&emailBod[i+3]==sequence[3]){
 				i=i+4;
 				while(i<emailBod.length-4){
 					if(emailBod[i]==sequence[0]&&emailBod[i+1]==sequence[1]&&emailBod[i+2]==sequence[2]&&emailBod[i+3]==sequence[3]){
@@ -85,9 +82,30 @@ function startExtension(gmail) {
 			}
 		}
 		console.log(result);
-		window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "v", emailBody: result, client: userEmail}}));
-
 		
+		clearText = "";
+		//take out " and <> parts from result
+		var j=0;
+		while(j<result.length){
+			alert(result[j]);
+			if(result[j] != " \"" && result[j] != "<"){
+				clearText = clearText + result[j];
+			}
+			//skipts all text inside div <----->
+			else if (result[j] == "<"){
+				j = j+1
+				while (j < result.length && result[j] != ">"){
+					j=j+1;
+				}
+			}
+			j=j+1;
+		}
+		console.log("the text only: " + clearText);
+		window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "v", emailBody: clearText, client: userEmail}}));
+
+ 
+			console.log("got till here open email func");
+			
 	});
 
     gmail.observe.on("compose", function(compose, type){
@@ -100,7 +118,7 @@ function startExtension(gmail) {
 	  
 	  //sends to the current email address too, in addition to whoever else was in the send
 	  compose.bcc(userEmail);
-	  compose.body(compose.body() + signature +"$@$@YOU ADDD ME!$@$@");
+	  compose.body(compose.body() + signature);
 
 	  //sendss email to avoid extra characters being added to signature text
 	  compose.send();

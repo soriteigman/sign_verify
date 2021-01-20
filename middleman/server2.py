@@ -1,9 +1,7 @@
 import socket
 
-MAX_USER_ID = 256
-RAND_LEN = 6
-PORT = 5525
-MAX_REC = 128
+PORT = 6626
+MAX_REC = 1024
 SOCKET_TIMEOUT = 10
 
 
@@ -42,42 +40,56 @@ while True:
         print("got a connection!")
         # receives client request
         recv = client_socket.recv(MAX_REC)
-        print (recv)
-        while recv[-4:] != b'\r\n\r\nv' and recv[-4:] != b'\r\n\r\ns':  # empties socket until end character received
-            recv += client_socket.recv(MAX_REC)
+        if recv != b'':          
+            while recv[-4:] != b'\r\n\r\nv' and recv[-4:] != b'\r\n\r\ns':  # empties socket until end character received
+                recv += client_socket.recv(MAX_REC)
         print("whole message is" + recv.decode())
     except Exception as e:
         print(e)
+    if recv != b'':
+        print("received client message")
+        # sends message to c#
+        # s or v byte
+        print(bytes([recv[-1]]))
+        c_socket.send(bytes([recv[-1]]))
+        # c_socket email address
+        #print("split up received mssage" +str(recv.split(b'\r\n\r\n')))
+        # http request header from the data in body
+        message = recv.split(b'\r\n\r\n')[1]
+        print(message)
+        #splitting email address
+        email = message.split(b'\n')[0]
+        print(email)
+        userMail = (str(len(email)).zfill(4)).encode() + email
+        c_socket.send(userMail)
+        # get request body
+        req = b"\n".join(message.split(b'\n')[1:])
+        print(req)
+        sendStuff = (str(len(req)).zfill(4)).encode() + req
+        #sendData = str(len(recv)+1).encode() +recv
+        c_socket.send(sendStuff)
+        print("waiting for c#")
+        
+        #get response
+        response = c_socket.recv(MAX_REC)
+        print(response)
+        '''      # testing - verifies
+        c_socket.send(b'v')
+        userMail = (str(len(email)).zfill(4)).encode() + email
+        print(b"verfiy email sent:" + userMail)
+        c_socket.send(userMail)
 
-    print("received client message")
-    # sends message to c#
-    # s or v byte
-    print(bytes([recv[-1]]))
-    c_socket.send(bytes([recv[-1]]))
-    # c_socket email address
-    print("split up received mssage" +str(recv.split(b'\r\n\r\n')))
-    # http request header from the data in body
-    message = recv.split(b'\r\n\r\n')[1]
-    #splitting email address
-    email = message.split(b'\n')[0]
-    sendStuff = (str(len(email)).zfill(4)).encode() + email
-    c_socket.send(sendStuff)
-    # get request body
-    req = "\n".join(message.split(b'\n')[1:])
-    sendStuff = (str(len(req)).zfill(4)).encode() + req
-    sendData = str(len(recv)+1).encode() +recv
-    c_socket.send(sendStuff)
-    
-    #get response
-    user = c_socket.recv(MAX_USER_ID).decode()
+        sendStuff = (str(len(response)).zfill(4)).encode() + response
+        c_socket.send(sendStuff)
+        response = c_socket.recv(MAX_REC)
+        print(b"verified\n response: "+response)'''
 
-    print("id is", user, end = "")
 
-    # send
-    # receives response from c# to send extension
-    
-    response = "HTTP/1.1 200 OK Internal\r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n" + user
-    client_socket.send(response.encode())
+        # send
+        # receives response from c# to send extension
+        
+        response = "HTTP/1.1 200 OK Internal\r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n".encode() + response
+        client_socket.send(response)
 
     # close connection
     print("closing connection")

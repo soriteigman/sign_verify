@@ -36,23 +36,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function accessServer(mess,type){
 function callback() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
-		alert("extension http req done") 
-		//response background to content
-			 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-		chrome.tabs.sendMessage(tabs[0].id, {data: xhr.responseText});});
-        //deal with response if successful status
+	  //deal with response if successful status
 		if (xhr.status === 200) {
             result = xhr.responseText;
            alert("response received " +result)
 		   
 		   //response background to content
 		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-		   chrome.tabs.sendMessage(tabs[0].id, {data: "hello"})});
-			}
+		   chrome.tabs.sendMessage(tabs[0].id, {data:  "$@$@"+result+"$@$@"})});
+		}
+		else{
+			alert("error! response received " +result)
+
+		}
 		
 }};
 var xhr = new XMLHttpRequest();
-xhr.open("POST", "http://localhost:5525/hello", true);
+xhr.open("POST", "http://localhost:6626/hello", true);
 xhr.onreadystatechange = callback;
 xhr.send(mess+"\r\n\r\n"+type);
 }

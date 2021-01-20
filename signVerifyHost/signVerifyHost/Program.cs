@@ -12,7 +12,7 @@ namespace signVerifyHost
     { 
         static int INT_LEN_ARRAY = 4; //amount of bytes for each length field in email
         static int KEY_LEN = 260; //based on algorithm being used
-        static int PORT = 5525;
+        static int PORT = 6626;
 
 
         static void Main(string[] args)
@@ -49,38 +49,62 @@ namespace signVerifyHost
 
                     while (true)
                     {
+                        byte[] sign_verify = new byte[1];//                                                                       sign_verify
+                        sender.Receive(sign_verify, 0, 1, SocketFlags.None);//receives one byte
+                        byte[] length = new byte[4];
+                        sender.Receive(length, 0, 4, SocketFlags.None);//receives length of email address
+                        Console.WriteLine(length);
+                        string len = Encoding.UTF8.GetString(length, 0, 4);
+                        Console.WriteLine(len);
+                        int leng = Int32.Parse(len);
+                        Console.WriteLine(leng);
+                        byte[] userEmail = new byte[leng];//                                                                       userEmail
+                        sender.Receive(userEmail, 0, leng, SocketFlags.None);//receives email address
+                        Console.WriteLine("user email "+ Encoding.UTF8.GetString(userEmail,0,leng));
+                        length = new byte[4];
+                        sender.Receive(length, 0, 4, SocketFlags.None);//receives length of body
+                        len = Encoding.UTF8.GetString(length, 0, 4);
+                        leng = Int32.Parse(len);
+                        byte[] emailBody = new byte[leng];//                                                                       emailBody
+                        sender.Receive(emailBody, 0, leng, SocketFlags.None);//receives email body
+                        Console.WriteLine("email body " + Encoding.UTF8.GetString(emailBody, 0, leng));
 
-                        // Receive the request from the remote device.  
-                        bytesRec = sender.Receive(bytes);
-                        message1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);//converts received message to bytes
-                        Console.WriteLine(message1);
+                        if (Encoding.UTF8.GetString(sign_verify, 0, 1) == "s")//in case of sign
+                        {
 
-                        /*
-                        if (SIGN) { */
+                            //returns byte array of all information necessary to verify the email.
+                            byte[] email = signFunc(userEmail, emailBody);
+                            if (email == null)
+                            { /*some error message returned*/
+                                Console.WriteLine("email value is null");
+                                byte[] err = convertMessage("error");
+                                sender.Send(err);
+                            }
+                            else
+                            {
+                                sender.Send(email);
+                            }
 
-          
-                        //Allocate a buffer
-                        var emailBody = new byte[20];
-                        
-                        String username = "Avi@gmail.com";
+                        }
+                        else//    in case of verify
+                        {
+                            //verifies bytes at end of email given
+                            bool verified = verifyFunc(userEmail, emailBody);
+                            Console.WriteLine("verified: " + verified);
 
-                        //returns byte array of all information necessary to verify the email.
-                        byte[] email = signFunc(username, emailBody);
+                            if (verified)
+                            {
+                                byte[] t = convertMessage("true");
+                                sender.Send(t);
+                                Console.WriteLine("sent verification");
+                            }
+                            else
+                            {
+                                byte[] f = convertMessage("false");
+                                sender.Send(f);
+                            }
+                        }
 
-                        // if (email == null) { some error message returned}
-                        /*}
-                       else { */
-                        //verifies bytes at end of email given
-                        Console.WriteLine("verified: " + verifyFunc(username, email));
-                        // }
-
-
-
-                        // Encode the data string into a byte array.  
-                        byte[] msg = Encoding.ASCII.GetBytes(username);
-
-                        // Send the data through the socket.  
-                        int bytesSent = sender.Send(msg);
                     }
                     // Release the socket.  
                     sender.Shutdown(SocketShutdown.Both);
@@ -117,7 +141,7 @@ namespace signVerifyHost
         /*
          * signs the message received and returns the formatted message for the email in bytes
          */
-        public static byte[] signFunc(string username, byte[] emailBody)
+        public static byte[] signFunc(byte[] username, byte[] emailBody)
         {
 
 #if AMULET
@@ -176,7 +200,7 @@ namespace signVerifyHost
             Console.Out.WriteLine("Retrieving key for user...");
             //convert email to byte[] username and ask for public key, 
             //from key instance stored in DAL safe memory
-            byte[] pubKey = sendRecv(convertMessage(username), 1);
+            byte[] pubKey = sendRecv(username, 1);
             if (Encoding.UTF8.GetString(pubKey) != "FAIL")
             {
                 Console.Out.WriteLine("Public key retrieved.");
@@ -238,9 +262,9 @@ namespace signVerifyHost
          * saves to database if nonexistant
          * if exists checks that public key matches pubic key saved
          */
-        private static bool verifySameKey(string username, byte[] pubKey)
+        private static bool verifySameKey(byte[] username, byte[] pubKey)
         {
-
+            //todo- future version
             return true;
         }
 
@@ -269,6 +293,7 @@ namespace signVerifyHost
             Array.Copy(signedEmail, 0, finalEmail, 2 * INT_LEN_ARRAY + emailBody.Length, signedEmail.Length); //copies signed email
             Array.Copy(pubKey, 0, finalEmail, 2 * INT_LEN_ARRAY + emailBody.Length + signedEmail.Length, pubKey.Length); //copies public key
 
+            Console.WriteLine("final email lenfth is "+finalEmail.Length);
             return finalEmail;
         }
 
@@ -277,30 +302,40 @@ namespace signVerifyHost
          * verfies email sent. 
          * extracts public key, original email and signed email and sends to verify func as three arguments
           */
-        public static bool verifyFunc(String username, byte[] wholeEmail)
-
+        public static bool verifyFunc(byte[] username, byte[] wholeEmail)
         {
-            //extract lengths of fields
-            byte[] emailLen = new byte[INT_LEN_ARRAY],
-                signLen = new byte[INT_LEN_ARRAY];
+            try
+            {
 
-            Array.Copy(wholeEmail, emailLen, INT_LEN_ARRAY);
-            Array.Copy(wholeEmail, INT_LEN_ARRAY, signLen, 0, INT_LEN_ARRAY);
-            int sign = BitConverter.ToInt32(signLen, 0);
-            int mail = BitConverter.ToInt32(emailLen, 0);
-            //lengths
-            byte[] email = new byte[mail],
+
+                //extract lengths of fields
+                byte[] emailLen = new byte[INT_LEN_ARRAY],
+                    signLen = new byte[INT_LEN_ARRAY];
+                //Array.Copy(source,destinationArray,len)
+                Array.Copy(wholeEmail, emailLen, INT_LEN_ARRAY);
+                Array.Copy(wholeEmail, INT_LEN_ARRAY, signLen, 0, INT_LEN_ARRAY);
+                int sign = BitConverter.ToInt32(signLen, 0);
+                int mail = BitConverter.ToInt32(emailLen, 0);
+                //lengths
+                byte[] email = new byte[mail],
                 signature = new byte[sign],
                 pubKey = new byte[KEY_LEN];
 
-            //extracts parts
-            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY, email, 0, mail);
-            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail, signature, 0, sign);
-            Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail + sign, pubKey, 0, KEY_LEN);
 
-            //save public key in file with email. 
-            //verifies that this is the same as the other ones if already has this email on file
-            return verifySameKey(username, pubKey) && verifyFunc(pubKey, email, signature);
+                //extracts parts
+                Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY, email, 0, mail);
+                Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail, signature, 0, sign);
+                Array.Copy(wholeEmail, 2 * INT_LEN_ARRAY + mail + sign, pubKey, 0, KEY_LEN);
+
+                //save public key in file with email. 
+                //verifies that this is the same as the other ones if already has this email on file
+                return verifySameKey(username, pubKey) && verifyFunc(pubKey, email, signature);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
 
         }
         /* 

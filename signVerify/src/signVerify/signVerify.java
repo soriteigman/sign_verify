@@ -44,7 +44,9 @@ public class signVerify extends IntelApplet {
 	 * @return	the return value should not be used by the applet
 	 */
 	public int invokeCommand(int commandId, byte[] request) {
-		
+		//FlashStorage.eraseFlashData(0);
+		//FlashStorage.eraseFlashData(1);
+
 		byte[] myResponse = null;		
 		boolean success = false; //status of command
 
