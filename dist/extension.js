@@ -6,7 +6,6 @@ const loaderId = setInterval(() => {
     if (!window._gmailjs) {
         return;
     }
-
     clearInterval(loaderId);
     startExtension(window._gmailjs);
 }, 100);
@@ -14,11 +13,19 @@ const loaderId = setInterval(() => {
 // actual extension-code
 function startExtension(gmail) {
     console.log("Extension loading...");
-
     window.gmail = gmail;
 	
-	
-	gmail.observe.on("load_email_menu", function(obj) {//id, url, body, xhr
+/* 	var listener = function(evt) {
+		console.log("received event in extension!!!!!" + evt")
+        if(evt.detail.requestId == id) {
+          // Deregister self
+          window.removeEventListener("sendChromeData", listener);
+          resolve(evt.detail.data);
+        }
+      }
+      window.addEventListener("sendChromeData", listener);
+	  console.log("extension added listener");		 */
+	/* gmail.observe.on("load_email_menu", function(obj) {/
 	//gmail.observe.on('view_email', function(obj) {
 		
 		console.log("view email option"+obj.arguments+"#1");
@@ -27,8 +34,6 @@ function startExtension(gmail) {
 		console.log("view email option"+obj.text+"#4");
 		console.log("view email option"+obj.value+"#5");
 		console.log("view email option"+obj.emailBody+"#6");
-
-
 	
 		/* gmail.tools.add_toolbar_button("verify", () => { 
 			var emailBod = compose.body();
@@ -36,7 +41,7 @@ function startExtension(gmail) {
 			console.log("verify button pressed");
 			//window.dispatchEvent(new CustomEvent("verifyRequest", {detail: {emailBody: emailBod, client: userEmail}}));
 
-		}); */
+		}); *//*
 		
 		gmail.tools.add_toolbar_button('verify', function() {
 			
@@ -48,34 +53,35 @@ function startExtension(gmail) {
 			//console.log(gmail.dom.email_data(id)+"#5");
 			//console.log(body);
 
-
 			const userEmail = gmail.get.user_email();
 			console.log("verify button pressed");
 			//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
-
 		});
-
 	})
-/*
+ */
+ 
 window.addEventListener("ContentToExtension", function(e) {
   console.log("msg from content to injected "+e.detail.hello);
 }, false);
-*/
+
     gmail.observe.on("compose", function(compose, type){
         const userEmail = gmail.get.user_email();
         //console.log("Hello, " + userEmail + ". This is your extension talking!");
-		
-        //gmail.tools.add_toolbar_button("verify", () => { console.log("verify button pressed"); });
 
 		gmail.tools.add_compose_button(compose, 'sign', function() {  
 				var emailBod = compose.body();
 				const userEmail = gmail.get.user_email();
-                compose.bcc(userEmail);
 				window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {emailBody: emailBod, client: userEmail}}));
-				console.log("the body being signed:" + emailBod);
-				
+				console.log("the body being signed:" + emailBod);		
 		});
     });
+	
+	// Page script
+window.addEventListener('sendChromeData', function(evt) {
+  console.log("extesnsion got evnent!" + evt.detail);
+});
+var event = new CustomEvent('LoadContent');
+window.dispatchEvent(event);
 
 }
 

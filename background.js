@@ -11,6 +11,7 @@
  });
 });
 */
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
 		//alert("Background got a request!");
@@ -19,6 +20,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			
 		//sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
 		releventData = request.data.userEmail+"\n" + request.data.emailBod
+		
+		/*
+		//syncronous server calling.
+		let response = await new Promise(resolve => {
+   var xhr = new XMLHttpRequest();
+   xhr.open("GET", url, true);
+   xhr.onload = function(e) {
+     resolve(xhr.response);
+   };
+   xhr.onerror = function () {
+     resolve(undefined);
+     console.error("** An error occurred during the XMLHttpRequest");
+   };
+   xhr.send();
+});*/
+
+sendResponse({ sender: "content.js"/*, data: parsedTextFieldContent*/  }); // This response is sent to the message's sender 
+
 			accessServer(releventData)
 			alert("I sent successfully!")
 }}		
@@ -37,47 +56,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		//alert(request.msg);
 });
 
-/* function accessServer(mess){
-function callback() {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
-		alert("I got to the response stage!")
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  chrome.tabs.sendMessage(tabs[0].id, {data: "demo data for now."});});
-
-		alert("done with response background to content.")
-        if (xhr.status === 200) {
-            result = xhr.responseText;
-           alert("response received " +result)
-		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  chrome.tabs.sendMessage(tabs[0].id, {data: xhr.responseText});
-		   });
-}};
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "http://localhost:5525/hello", true);
-xhr.onreadystatechange = callback;
-xhr.send(mess+"\r\n\r\n");
-alert("sent to server!")
-}
-} */
-
+	
 function accessServer(mess){
+	
+	
 function callback() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
 		alert("extension http req done") 
 			 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.sendMessage(tabs[0].id, {data: "hello"});});
-function logTabs(tabs) {
- // tabs[0].url requires the `tabs` permission
-alert(tabs[0].url);
-}
-
-function onError(error) {
-  console.log(`Error: ${error}`);
-}
-
-let querying = browser.tabs.query({currentWindow: true, active: true});
-querying.then(logTabs, onError);
-
 			 alert("done with response background to content.")
         if (xhr.status === 200) {
             result = xhr.responseText;
