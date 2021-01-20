@@ -1,4 +1,0 @@
-::Name FinalProj
-::Description This is the FinalProj applet
-::Vendor DALSDK_build
-::Applet C:\Users\sorit\Documents\computers\third year\semester 1\dal- secure environment code\signature extension\FinalProj\bin\ME12.0\FinalProj_ME12.0.pack ::FwVersion 11.0.0
