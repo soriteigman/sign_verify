@@ -1,16 +1,4 @@
 // background.js
-//alert("this is the background script speaking");
-
-// Called when the user clicks on the browser action. 
-/*chrome.browserAction.onClicked.addListener(function(tab) {
-  // Send a message to the active tab
-  alert("I was clicked!");
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var activeTab = tabs[0];
-    chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
- });
-});
-*/
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request) {
@@ -36,18 +24,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function accessServer(mess,type){
 function callback() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
+		result = xhr.responseText;
+
 	  //deal with response if successful status
 		if (xhr.status === 200) {
-            result = xhr.responseText;
            alert("response received " +result)
 		   
 		   //response background to content
 		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-		   chrome.tabs.sendMessage(tabs[0].id, {data:  "$@$@"+result+"$@$@"})});
+		   chrome.tabs.sendMessage(tabs[0].id, {data:  "\n$@$@"+result+"$@$@"})});
 		}
-		else{
-			alert("error! response received " +result)
-
+		else{ //error
+			alert("error!" +result + "unable to sign your email.");
+		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {chrome.tabs.sendMessage(tabs[0].id, {data:  '\nunable to sign your email.'})});
 		}
 		
 }};

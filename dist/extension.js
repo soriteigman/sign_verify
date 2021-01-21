@@ -48,7 +48,7 @@ function startExtension(gmail) {
  
 	gmail.observe.on("open_email", function(id, url, body, xhr) {
 
- 		const userEmail = gmail.get.user_email();
+ 		/*(const userEmail = gmail.get.user_email();
 		var id1=gmail.new.get.email_id();
 		console.log(id1);
 		var data=gmail.new.get.email_data(id1);
@@ -83,7 +83,10 @@ function startExtension(gmail) {
 		}
 		console.log(result);
 		
+		var result = "kajdf;lajoiewjdlkajdlfkjiefj"; 
+		console.log(result);*/
 		clearText = "";
+		/*
 		//take out " and <> parts from result
 		var j=0;
 		while(j<result.length){
@@ -100,11 +103,10 @@ function startExtension(gmail) {
 			}
 			j=j+1;
 		}
-		console.log("the text only: " + clearText);
-		window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "v", emailBody: clearText, client: userEmail}}));
+		console.log("the text only: " + clearText);*/
+		//window.dispatchEvent(new CustomEvent("MyCustomMsg", {detail: {type: "v", emailBody: clearText, client: userEmail}}));
 
- 
-			console.log("got till here open email func");
+		//console.log("got till here open email func");
 			
 	});
 
