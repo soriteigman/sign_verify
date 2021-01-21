@@ -30,6 +30,17 @@ function callback() {
 		if (xhr.status === 200) {
            alert("response received " +result)
 		   
+		   alert("verification response: true");
+
+		   //response background to content
+		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		   chrome.tabs.sendMessage(tabs[0].id, {data:  "\n$@$@"+result+"$@$@"})});
+		}
+		else if(xhr.status===203){
+			alert("response received " +result)
+		   
+		   alert("verification response: false");
+
 		   //response background to content
 		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		   chrome.tabs.sendMessage(tabs[0].id, {data:  "\n$@$@"+result+"$@$@"})});
@@ -38,7 +49,6 @@ function callback() {
 			alert("error!" +result + "unable to sign your email.");
 		   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {chrome.tabs.sendMessage(tabs[0].id, {data:  '\nunable to sign your email.'})});
 		}
-		
 }};
 var xhr = new XMLHttpRequest();
 xhr.open("POST", "http://localhost:6626/hello", true);

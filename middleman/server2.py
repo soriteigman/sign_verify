@@ -73,22 +73,25 @@ while True:
         #get response
         response = c_socket.recv(MAX_REC)
         print(response)
-        '''      # testing - verifies
+        # testing - verifies
         c_socket.send(b'v')
         userMail = (str(len(email)).zfill(4)).encode() + email
         print(b"verfiy email sent:" + userMail)
         c_socket.send(userMail)
-
         sendStuff = (str(len(response)).zfill(4)).encode() + response
         c_socket.send(sendStuff)
-        response = c_socket.recv(MAX_REC)
-        print(b"verified\n response: "+response)'''
+        #response = c_socket.recv(MAX_REC)
+        resp = c_socket.recv(MAX_REC)
+        print(b"verified\n response: "+resp)
 
 
         # send
         # receives response from c# to send extension
-        
-        response = "HTTP/1.1 200 OK Internal\r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n".encode() + response
+        if resp.decode()=="true":
+            response = "HTTP/1.1 200 OK Internal \r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n".encode() + response
+        else:
+            response = "HTTP/1.1 203 Non-Authoritative Information Internal \r\n Access-Control-Allow-Origin: chrome-extension://*\r\n\r\n".encode() + response
+
         client_socket.send(response)
 
     # close connection
@@ -102,5 +105,4 @@ server_socket.close()
 # save user information and seed to file
 with open("secret.txt", 'w') as file:
     file.write(user + " : " + seed + "\n")
-
 '''
